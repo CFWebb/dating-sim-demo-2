@@ -1,26 +1,33 @@
-$ flowey_hated = True
-$ flowey_disliked = False
-$ flowey_neutral = False
-
 #when clicking on Flowey
 label Flowey_Interaction:
-    if flowey_hated:
+    $ r = owner.get_relationship()
+    
+    if r == 'Hated':
+        $ flowey_hated = True
+        $ flowey_disliked = False
+        $ flowey_neutral = False
         show flowey angry
         flowey "Go away. I'm busy right now."
         jump Flowey_Regular_Dialogue
-    elif flowey_disliked:
+    elif r == "Disliked":
+        $ flowey_hated = False
+        $ flowey_disliked = True
+        $ flowey_neutral = False
         show flowey annoyed
         flowey "What do you want?"
         jump Flowey_Regular_Dialogue
     else:
+        $ flowey_hated = False
+        $ flowey_disliked = False
+        $ flowey_neutral = True
         show flowey normal
         flowey "What?"
         jump Flowey_Regular_Dialogue
 
 label Flowey_Regular_Dialogue:
     menu:
-        "Change Standing":
-            jump Flowey_Change_Standing
+        #"Change Standing":
+        #    jump Flowey_Change_Standing
         "Ruins":
             call Flowey_Ruins_Regular from _call_Flowey_Ruins_Regular
         "Flowers":
@@ -69,6 +76,7 @@ label Flowey_Regular_Dialogue:
             else:
                 show flowey normal
                 flowey "Bye."
+            return
 
 label Flowey_Change_Standing:
     menu:
@@ -87,6 +95,7 @@ label Flowey_Change_Standing:
     jump Flowey_Regular_Dialogue
     
 label Flowey_Ruins_Regular:
+    show flowey normal
     menu:
         "The ruins are nice, aren’t they?":
             show flowey annoyed
@@ -148,6 +157,7 @@ label Flowey_Ruins_Regular:
             jump Flowey_Regular_Dialogue
     jump Flowey_Ruins_Regular
 label Flowey_When_In_Flowers_Regular:
+    show flowey normal
     menu:
         "Why are you hanging out with flowers?":
             show flowey normal
@@ -168,7 +178,7 @@ label Flowey_When_In_Flowers_Regular:
     jump Flowey_When_In_Flowers_Regular
 
 label Flowey_Waterfall_Echo_Flower_Room:    
-
+    show flowey normal
     menu:
         "You don’t think it’s too dark or quiet here?":
             show flowey normal
@@ -242,6 +252,7 @@ label Flowey_Waterfall_Echo_Flower_Room:
             jump Flowey_Regular_Dialogue
     jump Flowey_Waterfall_Echo_Flower_Room
 label Flowey_Distant_Castle_View_Room_Regular:
+    show flowey normal
     menu:
         "This is a great view of the castle, isn’t it?":
             if flowey_hated or flowey_disliked:
@@ -318,6 +329,7 @@ label Flowey_Distant_Castle_View_Room_Regular:
     jump Flowey_Distant_Castle_View_Room_Regular
 
 label Flowey_Casual_Chats:
+    show flowey normal
     menu: 
         "How are you?":
             if flowey_hated:
@@ -369,7 +381,7 @@ label Flowey_Casual_Chats:
                     show flowey sideglance
                     flowey "....Or you could try to think about what you might have missed."
                     flowey "Ya know, maybe a mission, or having to find someone?"
-                    flowey "Who was the last person you talked to, hm? What did thaey want from you?"
+                    flowey "Who was the last person you talked to, hm? What did {i}they{/i} want from you?"
                     show flowey normal
                     flowey "Things like that."
 
@@ -451,9 +463,11 @@ label Flowey_Casual_Chats:
                 flowey "Neither."
                 flowey "Both are dumb."
         "Leave":
-            jump Flowey_Regular_Dialogue
+            return
+            #jump Flowey_Regular_Dialogue
     jump Flowey_Casual_Chats
     label Flowey_Other_Characters:
+        show flowey normal
         menu:
             "Toriel":
                 if flowey_hated or flowey_disliked:
@@ -556,6 +570,7 @@ label Flowey_Casual_Chats:
                     show flowey normal
                     flowey "Not much else to that, the end."
             "Nevermind":
+                show flowey normal
                 jump Flowey_Casual_Chats
         jump Flowey_Other_Characters
     label Flowey_Casual_Hated:
