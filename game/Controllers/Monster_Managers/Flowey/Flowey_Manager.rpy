@@ -10,6 +10,27 @@ init -9 python:
             self.handle_schedule()
             self.default_sprite = 'flowey normal'
             self.hover_sprite = "flowey annoyed"
+            
+        def give_item(self,item = False):
+
+            # give_Gift_name_itemclassname
+            # builds the label and calls it with current count + 1
+            label_name = "give_Gift_%s_%s" % (self.name,item.get_class_name())
+
+            if renpy.has_label(label_name):
+
+                if self.given_today_count >= 5:
+                    renpy.call_in_new_context("give_Gift_%s_Rejection" % self.name,self)
+                else:
+                    response = renpy.call_in_new_context(label_name,self.get_total_specific_item(item) + 1,self)
+                    self.given_items[item.get_class_name()] = self.get_total_specific_item(item) + 1
+                    if response:
+                        self.given_today_count += 1
+                        renpy.call_in_new_context("%s_Gift_Count_Reaction" % self.name,self)
+
+            else:
+                renpy.call_in_new_context("give_Gift_%s_Unknown" % self.name)
+            return
 
     #update_schedule(self,day,timezone,location,event):
 
@@ -100,7 +121,6 @@ label flowey_manager_default(owner = False,pause = True):
         call flowey_greeting(owner)
         menu:
             "convo":
-                #call flowey_default_conversation(owner)
                 call Flowey_Interaction
             "remember test":
                 $r = renpy.show_screen("remember",owner)
@@ -113,7 +133,7 @@ label flowey_manager_default(owner = False,pause = True):
                 $ result = renpy.call_screen("gift_item_menu",owner)
                 if result == 'cancel':
                     call flowey_gift_menu_cancel(owner)
-                
+                call show_flowey_sprite(owner)
             "Leave":
                 call flowey_goodbye(owner)
 
@@ -131,8 +151,6 @@ label flowey_gift_menu_open(owner):
         flowey "You... have something for me?"
     return
 
-
-
 label flowey_gift_menu_cancel(owner):
     if owner.get_relationship() == "Hated":
         show flowey annoyed
@@ -143,7 +161,6 @@ label flowey_gift_menu_cancel(owner):
     elif owner.get_relationship() == "Neutral":
         show flowey annoyed
         flowey "Ha ha, very funny."
-
     return
 
 label show_flowey_sprite(owner):
@@ -160,14 +177,22 @@ label show_flowey_sprite(owner):
     return
 
 label flowey_greeting(owner):
-    
     if owner.get_relationship() == "Hated":
+        $ flowey_hated = True
+        $ flowey_disliked = False
+        $ flowey_neutral = False
         show flowey angry
         flowey "Go away. I'm busy right now."
     elif owner.get_relationship() == "Disliked":
+        $ flowey_hated = False
+        $ flowey_disliked = True
+        $ flowey_neutral = False
         show flowey annoyed
         flowey "What do you want?"
     elif owner.get_relationship() == "Neutral":
+        $ flowey_hated = False
+        $ flowey_disliked = False
+        $ flowey_neutral = True
         show flowey normal
         flowey "What?"
     else:
@@ -175,7 +200,6 @@ label flowey_greeting(owner):
     return
 
 label flowey_goodbye(owner):
-
     if owner.get_relationship() == "Hated":
         show flowey annoyed
         flowey "Good riddance."
